@@ -23,7 +23,7 @@ namespace utazas
                     Console.WriteLine($"[{i+1}] {menupontok[i]}");
                 }
                 char valasz = Console.ReadKey().KeyChar;
-            
+                Console.Clear();
                 //Menüsor működése switchel
                 switch (valasz)
                 {
