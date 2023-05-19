@@ -10,14 +10,23 @@ namespace utazas
     {
         static void Main(string[] args)
         {
+            //Listák létrehozása
+            List<Utas> utasok = new List<Utas>();
+            List<Utazas> utazasok = new List<Utazas>();
+
+            //Menüsor kiíratása
             string[] menupontok = { "Utas felvétele", "Utas adatainak módosítása", "Utazás felvétele", "Utazásra jelentkezés" };
+            while (true)
+            {
+
+            
             for (int i = 0; i < menupontok.Length; i++)
             {
                 Console.WriteLine($"[{i+1}] {menupontok[i]}");
             }
             char valasz = Console.ReadKey().KeyChar;
-            List<Utas> utasok = new List<Utas>();
-            List<Utazas> utazasok = new List<Utazas>();
+            
+            //Menüsor működése switchel
             switch (valasz)
             {
                 case '1':
@@ -28,6 +37,8 @@ namespace utazas
                     Console.WriteLine("Adja meg az utas telefonszámát:");
                     string telefonszama = Console.ReadLine();
                     Utas ujutas = new Utas(utasneve, lakcime, telefonszama);
+
+                    //Ha még nincs ilyen utas, rögzíti
                     if (!utasok.Contains(ujutas))
                     {
                         utasok.Add(ujutas);
@@ -38,6 +49,7 @@ namespace utazas
                         Console.WriteLine("Ez az utas már rögzítve van.");
                     }
                     break;
+                //Utas módosítása
                 case '2':
                     Console.WriteLine("Adja meg a módosítandó utas nevét:");
                     string modositandonev = Console.ReadLine();
@@ -53,6 +65,8 @@ namespace utazas
                             Console.WriteLine("Adja meg az új telefonszámot:");
                             telefonszama = Console.ReadLine();
                             Utas editeltutas = new Utas(utasneve, lakcime, telefonszama);
+
+                            //Ha még nincs ilyen utas, rögzíti
                             if (!utasok.Contains(editeltutas))
                             {
                                 utasok.Add(editeltutas);
@@ -66,6 +80,7 @@ namespace utazas
                         }
                     }
                     break;
+                //Út felvétele
                 case '3':
                     Console.WriteLine("Adja meg az út nevét:");
                     string uticel = Console.ReadLine();
@@ -74,6 +89,8 @@ namespace utazas
                     Console.WriteLine("Adja meg az út maximális létszámát:");
                     int maxletszam = int.Parse(Console.ReadLine());
                     Utazas ujutazas = new Utazas(uticel, ar, maxletszam);
+
+                    //Ha még nincs ilyen út rögzítve rögzíti
                     if (!utazasok.Contains(ujutazas))
                     {
                         utazasok.Add(ujutazas);
@@ -92,15 +109,19 @@ namespace utazas
 
 
             Console.ReadKey();
+                Console.Clear();
+            }
         }
     }
 
+    //1db utas adatai
     class Utas
     {
         string nev;
         string cim;
         string telefonszam;
 
+        //Konstruktor alapértékek megadása
         public Utas(string neve, string cime, string telefonszama)
         {
             nev = neve;
@@ -108,12 +129,14 @@ namespace utazas
             telefonszam = telefonszama;
         }
 
+        //Név megszerzése
         public string GetNev()
         {
             return nev;
         }
     }
 
+    //1db út adatai
     class Utazas
     {
         string uticel;
