@@ -9,6 +9,7 @@ namespace utazas
     class Program
     {
         static void Main(string[] args)
+        
         {
             //Listák létrehozása
             List<Utas> utasok = new List<Utas>();
@@ -36,25 +37,30 @@ namespace utazas
                         string telefonszama = Console.ReadLine();
                         Utas ujutas = new Utas(utasneve, lakcime, telefonszama);
 
+
+                        //Végigmegy a listán és megnézi van e már ilyen utas, ha van, módosítja
+                        int index = 0;
+                        while (index < utasok.Count && utasok[index].GetNev() != ujutas.GetNev())
+                        {
+                            index++;
+                        }
+                        if (index < utasok.Count)
+                            {
+                                Console.WriteLine("Ez az utas már rögzítve van.");
+                            }
+                            else
+                            {
+                                //utasok.RemoveAt(i);
+                                utasok.Add(ujutas);
+                                Console.WriteLine("Sikeres rögzítés!");
+                            }
+                        
+
                         //Ha üres a lista egyből hozzáadja az utast
                         if (utasok.Count == 0)
                         {
                             utasok.Add(ujutas);
-                        }
-
-                        //Végigmegy a listán és megnézi van e már ilyen utas, ha van, módosítja
-                        for (int i = 0; i < utasok.Count; i++)
-                        {
-                            if (utasok[i] == ujutas)
-                            {
-                                utasok.RemoveAt(i);
-                                utasok.Add(ujutas);
-                                Console.WriteLine("Sikeres rögzítés!");
-                            }
-                            else
-                            {
-                                Console.WriteLine("Ez az utas már rögzítve van.");
-                            }
+                            Console.WriteLine("Sikeres rögzítés!");
                         }
                         break;
                     //Utas módosítása
