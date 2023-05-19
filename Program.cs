@@ -17,99 +17,117 @@ namespace utazas
             //Menüsor kiíratása
             string[] menupontok = { "Utas felvétele", "Utas adatainak módosítása", "Utazás felvétele", "Utazásra jelentkezés" };
             while (true)
-            {
-
+            {           
+                for (int i = 0; i < menupontok.Length; i++)
+                {
+                    Console.WriteLine($"[{i+1}] {menupontok[i]}");
+                }
+                char valasz = Console.ReadKey().KeyChar;
             
-            for (int i = 0; i < menupontok.Length; i++)
-            {
-                Console.WriteLine($"[{i+1}] {menupontok[i]}");
-            }
-            char valasz = Console.ReadKey().KeyChar;
-            
-            //Menüsor működése switchel
-            switch (valasz)
-            {
-                case '1':
-                    Console.WriteLine("Adja meg az utas nevét:");
-                    string utasneve = Console.ReadLine();
-                    Console.WriteLine("Adja meg az utas lakcímét:");
-                    string lakcime = Console.ReadLine();
-                    Console.WriteLine("Adja meg az utas telefonszámát:");
-                    string telefonszama = Console.ReadLine();
-                    Utas ujutas = new Utas(utasneve, lakcime, telefonszama);
+                //Menüsor működése switchel
+                switch (valasz)
+                {
+                    case '1':
+                        Console.WriteLine("Adja meg az utas nevét:");
+                        string utasneve = Console.ReadLine();
+                        Console.WriteLine("Adja meg az utas lakcímét:");
+                        string lakcime = Console.ReadLine();
+                        Console.WriteLine("Adja meg az utas telefonszámát:");
+                        string telefonszama = Console.ReadLine();
+                        Utas ujutas = new Utas(utasneve, lakcime, telefonszama);
 
-                    //Ha még nincs ilyen utas, rögzíti
-                    if (!utasok.Contains(ujutas))
-                    {
-                        utasok.Add(ujutas);
-                        Console.WriteLine("Sikeres rögzítés!");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Ez az utas már rögzítve van.");
-                    }
-                    break;
-                //Utas módosítása
-                case '2':
-                    Console.WriteLine("Adja meg a módosítandó utas nevét:");
-                    string modositandonev = Console.ReadLine();
-                    foreach (Utas utas in utasok)
-                    {
-                        if (utas.GetNev() == modositandonev)
+                        //Ha üres a lista egyből hozzáadja az utast
+                        if (utasok.Count == 0)
                         {
-                            utasok.Remove(utas);
-                            Console.WriteLine("Adja meg az új nevet:");
-                            utasneve = Console.ReadLine();
-                            Console.WriteLine("Adja meg az új lakcímet:");
-                            lakcime = Console.ReadLine();
-                            Console.WriteLine("Adja meg az új telefonszámot:");
-                            telefonszama = Console.ReadLine();
-                            Utas editeltutas = new Utas(utasneve, lakcime, telefonszama);
+                            utasok.Add(ujutas);
+                        }
 
-                            //Ha még nincs ilyen utas, rögzíti
-                            if (!utasok.Contains(editeltutas))
+                        //Végigmegy a listán és megnézi van e már ilyen utas, ha van, módosítja
+                        for (int i = 0; i < utasok.Count; i++)
+                        {
+                            if (utasok[i] == ujutas)
                             {
-                                utasok.Add(editeltutas);
-                                Console.WriteLine("Sikeres módosítás!");
+                                utasok.RemoveAt(i);
+                                utasok.Add(ujutas);
+                                Console.WriteLine("Sikeres rögzítés!");
                             }
                             else
                             {
-                                Console.WriteLine("Ez az utas már létezik.");
+                                Console.WriteLine("Ez az utas már rögzítve van.");
                             }
-                            break;
                         }
-                    }
-                    break;
-                //Út felvétele
-                case '3':
-                    Console.WriteLine("Adja meg az út nevét:");
-                    string uticel = Console.ReadLine();
-                    Console.WriteLine("Adja meg az út árát:");
-                    int ar = int.Parse(Console.ReadLine());
-                    Console.WriteLine("Adja meg az út maximális létszámát:");
-                    int maxletszam = int.Parse(Console.ReadLine());
-                    Utazas ujutazas = new Utazas(uticel, ar, maxletszam);
+                        break;
+                    //Utas módosítása
+                    case '2':
+                        Console.WriteLine("Adja meg a módosítandó utas nevét:");
+                        string modositandonev = Console.ReadLine();
+                        foreach (Utas utas in utasok)
+                        {
+                            if (utas.GetNev() == modositandonev)
+                            {
+                                utasok.Remove(utas);
+                                Console.WriteLine("Adja meg az új nevet:");
+                                utasneve = Console.ReadLine();
+                                Console.WriteLine("Adja meg az új lakcímet:");
+                                lakcime = Console.ReadLine();
+                                Console.WriteLine("Adja meg az új telefonszámot:");
+                                telefonszama = Console.ReadLine();
+                                Utas editeltutas = new Utas(utasneve, lakcime, telefonszama);
 
-                    //Ha még nincs ilyen út rögzítve rögzíti
-                    if (!utazasok.Contains(ujutazas))
-                    {
-                        utazasok.Add(ujutazas);
-                        Console.WriteLine("Sikeres rögzítés!");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Ez az út már rögzítve van.");
-                    }
-                    break;
-                case '4':
-                    break;
-                default:
-                    break;
-            }
+                                //Ha üres a lista egyből hozzáadja az utast
+                                if (utasok.Count == 0)
+                                {
+                                    utasok.Add(editeltutas);
+                                }
+
+                                //Végigmegy a listán és megnézi van e már ilyen utas, ha van, módosítja
+                                for (int i = 0; i < utasok.Count; i++)
+                                {
+                                    if (utasok[i] == editeltutas)
+                                    {
+                                        utasok.RemoveAt(i);
+                                        utasok.Add(editeltutas);
+                                        Console.WriteLine("Sikeres módosítás!");
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Ez az utas már rögzítve van.");
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                    //Út felvétele
+                    case '3':
+                        Console.WriteLine("Adja meg az út nevét:");
+                        string uticel = Console.ReadLine();
+                        Console.WriteLine("Adja meg az út árát:");
+                        int ar = int.Parse(Console.ReadLine());
+                        Console.WriteLine("Adja meg az út maximális létszámát:");
+                        int maxletszam = int.Parse(Console.ReadLine());
+                        Utazas ujutazas = new Utazas(uticel, ar, maxletszam);
+
+                        //Ha még nincs ilyen út rögzítve rögzíti
+                        if (!utazasok.Contains(ujutazas))
+                        {
+                            utazasok.Add(ujutazas);
+                            Console.WriteLine("Sikeres rögzítés!");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Ez az út már rögzítve van.");
+                        }
+                        break;
+                    case '4':
+                        break;
+                    default:
+                        break;
+                }
 
 
-            Console.ReadKey();
-                Console.Clear();
+                    Console.ReadKey();
+                    Console.Clear();
             }
         }
     }
