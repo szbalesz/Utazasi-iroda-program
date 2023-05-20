@@ -25,7 +25,7 @@ namespace utazas
                     Console.WriteLine($"[{i + 1}] {menupontok[i]}");
                 }
                 char valasz = Console.ReadKey().KeyChar;
-
+                Console.Clear();
                 //Menüsor működése switchel
                 switch (valasz)
                 {
@@ -81,25 +81,20 @@ namespace utazas
                                 telefonszama = Console.ReadLine();
                                 Utas editeltutas = new Utas(utasneve, lakcime, telefonszama);
 
-                                //Ha üres a lista egyből hozzáadja az utast
-                                if (utasok.Count == 0)
+                                index = 0;
+                                while (index < utasok.Count && utasok[index].GetNev() != editeltutas.GetNev())
                                 {
-                                    utasok.Add(editeltutas);
+                                    index++;
                                 }
-
-                                //Végigmegy a listán és megnézi van e már ilyen utas, ha van, módosítja
-                                for (int i = 0; i < utasok.Count; i++)
+                                if (index < utasok.Count)
                                 {
-                                    if (utasok[i] == editeltutas)
-                                    {
-                                        utasok.RemoveAt(i);
-                                        utasok.Add(editeltutas);
-                                        Console.WriteLine("Sikeres módosítás!");
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("Ez az utas már rögzítve van.");
-                                    }
+                                    Console.WriteLine("Ez az utas már rögzítve van.");
+                                }
+                                else
+                                {
+                                    //utasok.RemoveAt(i);
+                                    utasok.Add(editeltutas);
+                                    Console.WriteLine("Sikeres rögzítés!");
                                 }
                                 break;
                             }
@@ -144,7 +139,7 @@ namespace utazas
                         int jelentkezoindex = 0;
                         for (int i = 0; i < utasok.Count; i++)
                         {
-                            if(utasok[i].GetNev() == nev)
+                            if (utasok[i].GetNev() == nev)
                             {
                                 jelentkezoindex = i;
                                 break;
@@ -229,7 +224,7 @@ namespace utazas
         }
         public void Jelentkezes(Utas utas)
         {
-            if(maxletszam > jelentkezettek.Count)
+            if (maxletszam > jelentkezettek.Count)
             {
                 jelentkezettek.Add(utas);
             }
@@ -242,6 +237,5 @@ namespace utazas
         {
             return $"| {jelentkezettek.Count} / {maxletszam} max főből";
         }
+    }
 }
-}
-
