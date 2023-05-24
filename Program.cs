@@ -11,6 +11,7 @@ namespace utazas
             //Listák létrehozása
             List<Utas> utasok = new List<Utas>();
             List<Utazas> utazasok = new List<Utazas>();
+            Console.Title = "Utazási iroda program";
             if (File.Exists("utasok.txt"))
             {
                 string[] utasokfajl = File.ReadAllLines("utasok.txt");
@@ -31,7 +32,6 @@ namespace utazas
                     utazasok.Add(ujutazas);
                 }
             }
-
             if (File.Exists("utasok.txt"))
             {
                 string[] utasokfajl = File.ReadAllLines("utasok.txt");
@@ -40,17 +40,17 @@ namespace utazas
                     string[] sor = utasokfajl[i].Split('\t');
                     if (sor.Length >= 3)
                     {
-                        for (int f = 3; f < sor.Length; f+=2)
+                        for (int f = 3; f < sor.Length; f += 2)
                         {
                             string jelentkezett = sor[f];
                             string eloleg = sor[f + 1];
                             for (int g = 0; g < utazasok.Count; g++)
                             {
-                                if (utazasok[g].GetAdatok().Split('\t')[0] == jelentkezett)
+                                if (utazasok[g].GetUticel() == jelentkezett)
                                 {
                                     utasok[i].Jelentkezes(utazasok[g]);
-                                    utasok[i].SetEloleg(int.Parse(eloleg),i);
                                     utazasok[g].Jelentkezes(utasok[i]);
+                                    utasok[i].ElolegBetoltes(int.Parse(eloleg));
                                 }
                             }
                         }
@@ -58,11 +58,9 @@ namespace utazas
                 }
             }
             //Menüsor kiíratása
-            string[] menupontok = { "Utas felvétele", "Utas adatainak módosítása","Utas összes adatának lekérése", "Utazás felvétele", "Utazásra jelentkezés" };
+            string[] menupontok = { "Utas felvétele", "Utas adatainak módosítása", "Utas adatainak, és utazásainak lekérése", "Utazások kilistázása", "Utazás felvétele", "Utazásra jelentkezés", "Kilépés" };
             while (true)
             {
-
-
                 for (int i = 0; i < menupontok.Length; i++)
                 {
                     Console.WriteLine($"[{i + 1}] {menupontok[i]}");
@@ -80,8 +78,6 @@ namespace utazas
                         Console.WriteLine("Adja meg az utas telefonszámát:");
                         string telefonszama = Console.ReadLine();
                         Utas ujutas = new Utas(utasneve, lakcime, telefonszama);
-
-
                         //Végigmegy a listán és megnézi van e már ilyen utas, ha van, módosítja
                         int index = 0;
                         while (index < utasok.Count && utasok[index].GetNev() != ujutas.GetNev())
@@ -171,11 +167,88 @@ namespace utazas
                         //utas megkeresése
                         foreach (Utas u in utasok)
                         {
-                            //ha van utas kiíratjuk a TeljesAdatlapot 
-                            if(u.GetNev() == kereses)
+                            //ha van utas
+                            if (u.GetNev() == kereses)
                             {
-                                u.TeljesAdatlap();
                                 talalt = true;
+                                ConsoleKey jelenlegivalasz = ConsoleKey.D0;
+                                while (jelenlegivalasz != ConsoleKey.D2)
+                                {
+                                    Console.Clear();
+                                    //kiíratjuk a teljes adatlapot
+                                    u.TeljesAdatlap();
+                                    Console.WriteLine();
+                                    Console.WriteLine(Disz());
+                                    //2 választási lehetősége van a felhasználónak
+                                    Console.WriteLine("\t\t\t\t[1] Előleg módosítása\t\t [2] Vissza a menübe");
+                                    jelenlegivalasz = Console.ReadKey().Key;
+                                    switch (jelenlegivalasz)
+                                    {
+                                        case ConsoleKey.D1:
+                                            //előleg módosítása
+                                            Console.WriteLine("\nAdja meg, hogy melyik utazáshoz tartozó előleget szeretné megváltoztatni!");
+                                            string mely = Console.ReadLine();
+                                            int melyikutazasindex = 0;
+                                            for (int i = 0; i < utazasok.Count; i++)
+                                            {
+                                                if (mely == utazasok[i].GetUticel())
+                                                {
+                                                    melyikutazasindex = i;
+                                                    break;
+                                                }
+                                                melyikutazasindex++;
+                                            }
+                                            //ha az index eléri a lista végét akkor nincs ilyen utazás
+                                            if (melyikutazasindex == utazasok.Count)
+                                            {
+                                                Console.ForegroundColor = ConsoleColor.Red;
+                                                Console.Write("Nem jelentkezett ilyen utazásra! ");
+                                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                                Console.Write("(Nyomjon meg egy gombot a visszalépéshez)");
+                                                Console.ForegroundColor = ConsoleColor.White;
+                                                Console.ReadKey();
+                                            }
+                                            else
+                                            {
+                                                //ha van ilyen néven utazás
+                                                Console.WriteLine($"Adja meg, hogy mennyire szeretné módosítani az előleget! Utazás teljes ára: {utazasok[melyikutazasindex].GetAr()} Ft");
+                                                int mennyire = int.Parse(Console.ReadLine());
+                                                //megvizsgáljuk, hogy a megadott szám nem e több mint az utazás ára
+                                                if (mennyire > int.Parse(utazasok[melyikutazasindex].GetAr()))
+                                                {
+                                                    //ha több akkor a teljes árat kifizeti a felhasználó
+                                                    mennyire = int.Parse(utazasok[melyikutazasindex].GetAr());
+                                                    u.SetEloleg(mennyire, utazasok[melyikutazasindex].GetUticel());
+                                                }
+                                                else
+                                                {
+                                                    u.SetEloleg(mennyire, utazasok[melyikutazasindex].GetUticel());
+                                                }
+                                                Console.WriteLine(Disz());
+                                                Console.ForegroundColor = ConsoleColor.Green;
+                                                Console.WriteLine($"Az előleg sikeresen megváltoztatva a(z) {utazasok[melyikutazasindex].GetUticel()} utazásnál {mennyire} Ft-ra!");
+                                                Console.ForegroundColor = ConsoleColor.White;
+                                                Console.WriteLine(Disz());
+                                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                                Console.Write("(Nyomjon meg egy gombot a visszalépéshez)");
+                                                Console.ReadKey();
+                                                Console.ForegroundColor = ConsoleColor.White;
+                                                //utasok fájl frissítése az új adatokkal
+                                                StreamWriter ujUtasokfajl = new StreamWriter("utasok.txt");
+                                                foreach (Utas uts in utasok)
+                                                {
+                                                    ujUtasokfajl.WriteLine(uts.FajlSor());
+                                                }
+                                                ujUtasokfajl.Close();
+                                            }
+                                            break;
+                                        case ConsoleKey.D2:
+                                            //ezzel lép vissza a menübe
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
                                 break;
                             }
                         }
@@ -184,13 +257,20 @@ namespace utazas
                         {
                             NincsUtas();
                         }
-                        
+                        Vissza();
+                        break;
+                    //Utazások kilistázása
+                    case '4':
+                        foreach (Utazas ut in utazasok)
+                        {
+                            Console.WriteLine(ut.GetAdatok());
+                        }
                         Vissza();
                         break;
                     //Út felvétele
-                    case '4':
+                    case '5':
                         Console.Clear();
-                        Console.WriteLine("Adja meg az út nevét:");
+                        Console.WriteLine("Adja meg az uticélt:");
                         string uticel = Console.ReadLine();
                         Console.WriteLine("Adja meg az út árát:");
                         int ar = int.Parse(Console.ReadLine());
@@ -198,7 +278,7 @@ namespace utazas
                         int maxletszam = int.Parse(Console.ReadLine());
                         Utazas ujutazas = new Utazas(uticel, ar, maxletszam);
                         index = 0;
-                        while (index < utazasok.Count && utazasok[index].GetAdatok().Split('\t')[0] != uticel)
+                        while (index < utazasok.Count && utazasok[index].GetUticel() != uticel)
                         {
                             index++;
                         }
@@ -222,8 +302,6 @@ namespace utazas
                             }
                             ujUtazasokfajl.Close();
                         }
-
-
                         //Ha üres a lista egyből hozzáadja az utazast
                         if (utazasok.Count == 0)
                         {
@@ -234,12 +312,12 @@ namespace utazas
                         }
                         Vissza();
                         break;
-                    case '5':
+                    case '6':
                         Console.Clear();
                         //utas nevének bekérése
                         Console.WriteLine("Add meg az utas nevét:");
                         string nev = Console.ReadLine();
-                        int jelentkezoindex = 0;
+                        int jelentkezoindex = int.MaxValue;
                         int utazasindex = 0;
                         //megkeressük az utast
                         for (int i = 0; i < utasok.Count; i++)
@@ -252,30 +330,57 @@ namespace utazas
                         }
                         Console.Clear();
                         //ha nem üres az utasok lista
-                        if (utasok.Count > 0)
+                        if (jelentkezoindex < int.MaxValue)
                         {
                             //a felhasználónak kiíratjuk az utazásokat
                             Console.ForegroundColor = ConsoleColor.Green;
                             Console.WriteLine($"Jelentkező: {utasok[jelentkezoindex].GetNev()}");
-                            string disz = "";
-                            for (int i = 0; i < Console.WindowWidth - 1; i++)
-                            {
-                                disz += "─";
-                            }
                             Console.ForegroundColor = ConsoleColor.White;
-                            Console.WriteLine(disz);
-                            foreach (Utazas ut in utazasok)
+                            Console.WriteLine(Disz());
+                            Console.SetCursorPosition(Console.WindowWidth / 2 - 35, 2);
+                            Console.WriteLine("Uticél");
+                            Console.SetCursorPosition(Console.WindowWidth / 2 - 8, 2);
+                            Console.WriteLine("Ár");
+                            Console.SetCursorPosition(Console.WindowWidth / 2 + 18, 2);
+                            Console.WriteLine("Létszám");
+                            Console.WriteLine(Disz());
+                            for (int i = 0; i < utazasok.Count; i++)
                             {
-                                Console.WriteLine(ut.GetUtazas() + ut.EddigiLetszam());
+                                Console.SetCursorPosition(Console.WindowWidth / 2 - 36, 4 + i);
+                                Console.WriteLine(utazasok[i].GetUticel());
+                                Console.SetCursorPosition(Console.WindowWidth / 2 - 10, 4 + i);
+                                Console.WriteLine($"{utazasok[i].GetAr()} Ft");
+                                Console.SetCursorPosition(Console.WindowWidth / 2 + 15, 4 + i);
+                                if (utazasok[i].JelentkezettLetszam() == utazasok[i].MaxLetszam())
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                }
+                                else if (utazasok[i].JelentkezettLetszam() >= utazasok[i].MaxLetszam() / 2)
+                                {
+                                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                                }
+                                else
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                }
+                                Console.WriteLine($"{utazasok[i].JelentkezettLetszam()} / {utazasok[i].MaxLetszam()} max főből");
+                                Console.ForegroundColor = ConsoleColor.White;
                             }
-                            Console.WriteLine(disz);
+                            if (utazasok.Count == 0)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.SetCursorPosition(Console.WindowWidth / 2 - 15, 4);
+                                Console.WriteLine("Nincs egy utazás sem!");
+                                Console.ForegroundColor = ConsoleColor.White;
+                            }
+                            Console.WriteLine(Disz());
                             //bekérjük az uticélt, hogy melyik utazásra szeretne jelentkezni
                             Console.WriteLine("Adja meg az uticélt:");
                             string uticelvalasz = Console.ReadLine();
                             //ha van ilyen utazás akkkor annak az indexét megkeressük
                             for (int i = 0; i < utazasok.Count; i++)
                             {
-                                if (uticelvalasz == utazasok[i].GetAdatok().Split('\t')[0])
+                                if (uticelvalasz == utazasok[i].GetUticel())
                                 {
                                     utazasindex = i;
                                     break;
@@ -289,17 +394,17 @@ namespace utazas
                                 Console.WriteLine("Nincs ilyen utazás próbálja újra!");
                                 Console.ForegroundColor = ConsoleColor.White;
                             }//ha még nem jelentkezett erre az utazásra
-                            else if(!utasok[jelentkezoindex].JelentkezettE(utazasok[utazasindex]))
+                            else if (!utasok[jelentkezoindex].JelentkezettE(utazasok[utazasindex]))
                             {
                                 string szeretne = "";
-                                Console.WriteLine(disz);
+                                Console.WriteLine(Disz());
                                 //amíg nem ír i-t vagy n-t
                                 while (szeretne != "n" && szeretne != "i")
                                 {
                                     //addíg megkérdezzük hogy szeretne-e előleget fizetni
                                     Console.WriteLine("Szeretne előleget fizetni? (i/n)");
                                     szeretne = Console.ReadLine();
-                                    Console.WriteLine(disz);
+                                    Console.WriteLine(Disz());
                                     //ha szeretne
                                     if (szeretne == "i")
                                     {
@@ -309,23 +414,28 @@ namespace utazas
                                         //ha a mennyiség több mint amennyi az ár akkor kifizeti az egész árat
                                         if (mennyit > int.Parse(utazasok[utazasindex].GetAr()))
                                         {
-                                            utasok[jelentkezoindex].SetEloleg(int.Parse(utazasok[utazasindex].GetAr()), utazasindex);
+                                            utasok[jelentkezoindex].SetEloleg(int.Parse(utazasok[utazasindex].GetAr()), utazasok[utazasindex].GetUticel());
                                         }
                                         else//ha kevesebb, akkor az előleg ként tárolódik
                                         {
-                                            utasok[jelentkezoindex].SetEloleg(mennyit, utazasindex);
+                                            utasok[jelentkezoindex].SetEloleg(mennyit, utazasok[utazasindex].GetUticel());
                                         }
+                                        Console.WriteLine(Disz()+"\n");
+
+                                        Console.ForegroundColor = ConsoleColor.Green;
+                                        Console.WriteLine($"Sikeres jelentkezés! Előleg fizetve: {mennyit} Ft");
+                                        Console.ForegroundColor = ConsoleColor.White;
                                     }
                                     //ha nem szeretne
                                     if (szeretne == "n")
                                     {
                                         //akkor az előleg 0
-                                        utasok[jelentkezoindex].SetEloleg(0, utazasindex);
+                                        utasok[jelentkezoindex].SetEloleg(0, utazasok[utazasindex].GetUticel());
                                     }
                                 }
                                 //jelentkeztetjük a fejlhasználót az utazásra
-                                utazasok[utazasindex].Jelentkezes(utasok[jelentkezoindex]);
                                 utasok[jelentkezoindex].Jelentkezes(utazasok[utazasindex]);
+                                utazasok[utazasindex].Jelentkezes(utasok[jelentkezoindex]);
                                 //az utasok fájlba kiíratjuk az utasokat, és az utazásokat amikre jelentkeztek
                                 StreamWriter ujUtasokfajl = new StreamWriter("utasok.txt");
                                 foreach (Utas u in utasok)
@@ -347,6 +457,9 @@ namespace utazas
                         }
                         Vissza();
                         break;
+                    case '7':
+                        System.Environment.Exit(0);
+                        break;
                     default:
                         Vissza();
                         break;
@@ -357,21 +470,25 @@ namespace utazas
                 Console.Clear();
             }
         }
-        static void Vissza()
+        static string Disz() //dísz
         {
             string disz = "";
             for (int i = 0; i < Console.WindowWidth - 1; i++)
             {
                 disz += "─";
             }
+            return disz;
+        }
+        static void Vissza() //vissza a menübe felirat
+        {
             Console.WriteLine();
-            Console.WriteLine(disz);
+            Console.WriteLine(Disz());
             Console.WriteLine();
             Console.WriteLine($"\t\t\t\tNyomj meg egy gombot, hogy visszatérj a menübe!");
             Console.WriteLine();
-            Console.WriteLine(disz);
+            Console.WriteLine(Disz());
         }
-        static void NincsUtas()
+        static void NincsUtas() //ha nincs ilyen utas felirat
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.SetCursorPosition(Console.WindowWidth / 2 - 12, 1);
@@ -388,7 +505,6 @@ namespace utazas
         string telefonszam;
         List<Utazas> jelentkezettutazasok = new List<Utazas>();
         List<int> elolegek = new List<int>();
-
         //Konstruktor alapértékek megadása
         public Utas()
         {
@@ -400,7 +516,6 @@ namespace utazas
             cim = cime;
             telefonszam = telefonszama;
         }
-
         //Név megszerzése
         public string GetNev()
         {
@@ -416,7 +531,7 @@ namespace utazas
         {
             Console.Clear();
             string disz = "";
-            for (int i = 0; i < Console.WindowWidth-1; i++)
+            for (int i = 0; i < Console.WindowWidth - 1; i++)
             {
                 disz += "─";
             }
@@ -426,9 +541,9 @@ namespace utazas
             Console.WriteLine();
             Console.WriteLine(disz);
             //ha jelentkezett utazásokra akkor kiírjuk őket
-            if(jelentkezettutazasok.Count > 0)
+            if (jelentkezettutazasok.Count > 0)
             {
-                Console.SetCursorPosition(Console.WindowWidth/2-10,6);
+                Console.SetCursorPosition(Console.WindowWidth / 2 - 10, 6);
                 Console.WriteLine("Jelentkezett utak");
                 Console.SetCursorPosition(32, 7);
                 Console.WriteLine("Uticél");
@@ -436,10 +551,23 @@ namespace utazas
                 Console.WriteLine("Előleg / Ár");
                 for (int i = 0; i < jelentkezettutazasok.Count; i++)
                 {
-                    Console.SetCursorPosition(30, 9+i);
+                    Console.SetCursorPosition(30, 9 + i);
                     Console.WriteLine($"{jelentkezettutazasok[i].GetUticel()}");
-                    Console.SetCursorPosition(70, 9+i);
+                    Console.SetCursorPosition(70, 9 + i);
+                    if (jelentkezettutazasok[i].GetFizetett(this, i) == int.Parse(jelentkezettutazasok[i].GetAr()))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                    }
+                    else if (jelentkezettutazasok[i].GetFizetett(this, i) == 0)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    }
                     Console.WriteLine($"{jelentkezettutazasok[i].GetFizetett(this, i)} Ft / {jelentkezettutazasok[i].GetAr()} Ft");
+                    Console.ForegroundColor = ConsoleColor.White;
                 }
             }
             else//ha nem jelentkezett akkor ezt írjuk ki
@@ -465,17 +593,37 @@ namespace utazas
         //jelentkezés egy utazásra
         public void Jelentkezes(Utazas ut)
         {
-           jelentkezettutazasok.Add(ut);
+            jelentkezettutazasok.Add(ut);
         }
         //előleg lekérése
         public int GetEloleg(int hanyadik)
         {
             return elolegek[hanyadik];
         }
-        //előleg beállítása
-        public void SetEloleg(int mennyit,int hanyadik)
+        public void ElolegBetoltes(int mennyit)
         {
             elolegek.Add(mennyit);
+        }
+        //előleg beállítása
+        public void SetEloleg(int mennyit, string uticel)
+        {
+            int hanyadik = jelentkezettutazasok.Count;
+            for (int i = 0; i < jelentkezettutazasok.Count; i++)
+            {
+                if (jelentkezettutazasok[i].GetUticel() == uticel)
+                {
+                    hanyadik = i;
+                    break;
+                }
+            }
+            if (elolegek.Count > 0 && hanyadik != jelentkezettutazasok.Count)
+            {
+                elolegek[hanyadik] = mennyit;
+            }
+            else
+            {
+                elolegek.Add(mennyit);
+            }
         }
         //jelentkezett utazások lekérése
         public string GetJelentkezesek()
@@ -483,7 +631,7 @@ namespace utazas
             string jelentkezett = "";
             for (int i = 0; i < jelentkezettutazasok.Count; i++)
             {
-                jelentkezett += $"\t{jelentkezettutazasok[i].GetAdatok().Split('\t')[0]}";
+                jelentkezett += $"\t{jelentkezettutazasok[i].GetUticel()}";
             }
             return jelentkezett;
         }
@@ -498,7 +646,6 @@ namespace utazas
             return kimenet;
         }
     }
-
     //1db út adatai
     class Utazas
     {
@@ -506,17 +653,11 @@ namespace utazas
         int ar;
         int maxletszam;
         List<Utas> jelentkezettek = new List<Utas>();
-
         public Utazas(string utcel, int ara, int max)
         {
             uticel = utcel;
             ar = ara;
             maxletszam = max;
-        }
-        //utazás lekérése
-        public string GetUtazas()
-        {
-            return $"{uticel} | {ar} Ft";
         }
         //utazás adatainak lekérése
         public string GetAdatok()
@@ -534,26 +675,25 @@ namespace utazas
             return $"{ar}";
         }
         //fizetett rész lekérése
-        public int GetFizetett(Utas utas,int hanyadik)
+        public int GetFizetett(Utas utas, int hanyadik)
         {
             return utas.GetEloleg(hanyadik);
         }
-        //jelentkezés utazásra
-        public void Jelentkezes(Utas utas)
+        //létszámok lekérése
+        public int JelentkezettLetszam()
         {
-            if (maxletszam > jelentkezettek.Count)
+            return jelentkezettek.Count;
+        }
+        public void Jelentkezes(Utas u)
+        {
+            if (!jelentkezettek.Contains(u))
             {
-                jelentkezettek.Add(utas);
-            }
-            else
-            {
-                Console.WriteLine("Ez az utazás már megtelt!");
+                jelentkezettek.Add(u);
             }
         }
-        //eddigi létszám lekérése
-        public string EddigiLetszam()
+        public int MaxLetszam()
         {
-            return $"| {jelentkezettek.Count} / {maxletszam} max főből";
+            return maxletszam;
         }
     }
 }
