@@ -308,12 +308,16 @@ namespace utazas
                             {
                                 if (utazasok[i].GetUticel() == melyik)
                                 {
+                                    //fájl megnyitása
                                     StreamWriter utasLista = new StreamWriter($"{utazasok[i].GetUticel()}_utaslista.txt");
+                                    //jelentkezett utasok lekérése
                                     List<Utas> jelentkezettek = utazasok[i].Jelentkezettek();
                                     for (int f = 0; f < jelentkezettek.Count; f++)
                                     {
+                                        //jelentkezett utazások egy adott utasnál
                                         List<Utazas> jelentkezettutazasok = jelentkezettek[f].GetJelentkezesekLista();
                                         int index2 = 0;
+                                        //az utasnál a jelentkezett utazás indexének megkeresése (később az előleg miatt szükséges)
                                         for (int g = 0; g < jelentkezettutazasok.Count; g++)
                                         {
                                             //megkeressük, hogy az adott utasnál ez hanyadik a jelentkezett utazások között
@@ -323,8 +327,8 @@ namespace utazas
                                                 break;
                                             }
                                         }
+                                        //sor beleírása a fájlba
                                         utasLista.WriteLine($"{jelentkezettek[f].GetAdatok()}\t{jelentkezettek[f].GetEloleg(index2)}");
-
                                     }
                                     utasLista.Close();
                                     Console.ForegroundColor = ConsoleColor.Green;
