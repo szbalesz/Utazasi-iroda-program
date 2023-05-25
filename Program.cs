@@ -8,10 +8,10 @@ namespace utazas
     {
         static void Main(string[] args)
         {
+            Console.Title = "Utazási iroda program";
             //Listák létrehozása
             List<Utas> utasok = new List<Utas>();
             List<Utazas> utazasok = new List<Utazas>();
-            Console.Title = "Utazási iroda program";
             if (File.Exists("utasok.txt"))
             {
                 string[] utasokfajl = File.ReadAllLines("utasok.txt");
@@ -28,7 +28,7 @@ namespace utazas
                 string[] utazasokfajl = File.ReadAllLines("utazasok.txt");
                 for (int i = 0; i < utazasokfajl.Length; i++)
                 {
-                    Utazas ujutazas = new Utazas(utazasokfajl[i].Split('\t')[0], int.Parse(utazasokfajl[i].Split('\t')[1]), int.Parse(utazasokfajl[i].Split('\t')[2]));
+                    Utazas ujutazas = new Utazas(utazasokfajl[i].Split('\t')[0],  int.Parse(utazasokfajl[i].Split('\t')[1]), int.Parse(utazasokfajl[i].Split('\t')[2]));
                     utazasok.Add(ujutazas);
                 }
             }
@@ -119,9 +119,8 @@ namespace utazas
                             if (utas.GetNev() == modositandonev)
                             {
                                 talalt = true;
+                                utasneve = utas.GetNev();
                                 utasok.Remove(utas);
-                                Console.WriteLine("Adja meg az új nevet:");
-                                utasneve = Console.ReadLine();
                                 Console.WriteLine("Adja meg az új lakcímet:");
                                 lakcime = Console.ReadLine();
                                 Console.WriteLine("Adja meg az új telefonszámot:");
@@ -568,7 +567,7 @@ namespace utazas
         }
     }
 
-    //1db utas adatai
+    //1 utas adatai
     class Utas
     {
         string nev;
@@ -577,10 +576,6 @@ namespace utazas
         List<Utazas> jelentkezettutazasok = new List<Utazas>();
         List<int> elolegek = new List<int>();
         //Konstruktor alapértékek megadása
-        public Utas()
-        {
-
-        }
         public Utas(string neve, string cime, string telefonszama)
         {
             nev = neve;
