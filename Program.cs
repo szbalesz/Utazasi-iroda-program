@@ -90,7 +90,6 @@ namespace utazas
                         }
                         else
                         {
-                            //utasok.RemoveAt(i);
                             utasok.Add(ujutas);
                             Console.WriteLine("Sikeres rögzítés!");
                             StreamWriter ujUtasokfajl = new StreamWriter("utasok.txt");
@@ -140,7 +139,6 @@ namespace utazas
                                 }
                                 else
                                 {
-                                    //utasok.RemoveAt(i);
                                     utasok.Add(editeltutas);
                                     Console.WriteLine("Sikeres rögzítés!");
                                     StreamWriter ujUtasokfajl = new StreamWriter("utasok.txt");
@@ -321,7 +319,7 @@ namespace utazas
                                         for (int g = 0; g < jelentkezettutazasok.Count; g++)
                                         {
                                             //megkeressük, hogy az adott utasnál ez hanyadik a jelentkezett utazások között
-                                            if(jelentkezettutazasok[g].GetUticel() == melyik)
+                                            if (jelentkezettutazasok[g].GetUticel() == melyik)
                                             {
                                                 index2 = g;
                                                 break;
@@ -646,7 +644,7 @@ namespace utazas
             else//ha nem jelentkezett akkor ezt írjuk ki
             {
                 Console.SetCursorPosition(Console.WindowWidth / 2 - 27, 6);
-                Console.ForegroundColor = ConsoleColor.DarkBlue;
+                Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine("Ez az utas még egy utazásra sem jelentkezett!");
                 Console.ForegroundColor = ConsoleColor.White;
             }
